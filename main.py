@@ -1,13 +1,18 @@
 import cv2
 import numpy as np
-import joblib
+from tensorflow.keras.models import load_model
 import mediapipe as mp
 
-# --- Load trained PCA + k-NN model ---
-pca, knn = joblib.load("isl_pca_knn_model.pkl")
+# --- Load trained CNN model ---
+model = load_model("isl_cnn_model.keras")
 
 # --- Constants ---
 IMG_SIZE = (64, 64)
+CLASS_LABELS = [
+    chr(i)
+    for i in range(ord("A"), ord("Z") + 1)
+    if i not in (ord("J"), ord("X"), ord("Z"))
+]  # A–Z excluding J, X, Z
 
 # --- MediaPipe Setup ---
 mp_hands = mp.solutions.hands
@@ -38,14 +43,11 @@ while True:
 
     if result.multi_hand_landmarks:
         for hand_landmarks in result.multi_hand_landmarks:
-            # Draw landmarks
             mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
 
-            # Get bounding box around hand
             h, w, _ = frame.shape
-            x_min = w
-            y_min = h
-            x_max = y_max = 0
+            x_min, y_min = w, h
+            x_max, y_max = 0, 0
 
             for lm in hand_landmarks.landmark:
                 x, y = int(lm.x * w), int(lm.y * h)
@@ -68,13 +70,13 @@ while True:
 
             gray = cv2.cvtColor(hand_img, cv2.COLOR_BGR2GRAY)
             resized = cv2.resize(gray, IMG_SIZE)
-            flattened = resized.flatten().reshape(1, -1)
-            reduced = pca.transform(flattened)
-            pred = knn.predict(reduced)[0]
-            prediction = pred
+            normalized = resized.astype("float32") / 255.0
+            input_tensor = normalized.reshape(1, IMG_SIZE[0], IMG_SIZE[1], 1)
 
-            # Show cropped hand (optional)
-            # cv2.imshow("Hand", resized)
+            # Predict with CNN
+            probs = model.predict(input_tensor)
+            predicted_index = np.argmax(probs)
+            prediction = CLASS_LABELS[predicted_index]
 
     # --- Overlay Prediction ---
     cv2.putText(
