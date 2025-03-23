@@ -1,0 +1,18 @@
+# Core project dependencies
+opencv-python
+mediapipe
+numpy
+
+# Azure Cognitive Services for speech
+azure-cognitiveservices-speech
+
+# Optional ML frameworks for future iterations
+tensorflow
+torch
+
+# Pre-commit
+pre-commit
+black
+
+# If you're using Streamlit for a UI later
+# streamlit
