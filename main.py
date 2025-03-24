@@ -1,10 +1,20 @@
 import cv2
 import numpy as np
-from tensorflow.keras.models import load_model
+import argparse
 import mediapipe as mp
+import joblib
+from tensorflow.keras.models import load_model
 
-# --- Load trained CNN model ---
-model = load_model("isl_cnn_model.keras")
+# --- Argument Parser ---
+parser = argparse.ArgumentParser(description="ISL Gesture Recogniser")
+parser.add_argument(
+    "--model",
+    type=str,
+    choices=["knn", "cnn"],
+    default="cnn",
+    help="Choose model: 'knn' or 'cnn'",
+)
+args = parser.parse_args()
 
 # --- Constants ---
 IMG_SIZE = (64, 64)
@@ -12,7 +22,15 @@ CLASS_LABELS = [
     chr(i)
     for i in range(ord("A"), ord("Z") + 1)
     if i not in (ord("J"), ord("X"), ord("Z"))
-]  # A–Z excluding J, X, Z
+]
+
+# --- Load Model ---
+if args.model == "knn":
+    print("Loading PCA + k-NN model...")
+    pca, knn = joblib.load("isl_pca_knn_model.pkl")
+else:
+    print("Loading CNN model...")
+    model = load_model("isl_cnn_model.keras")
 
 # --- MediaPipe Setup ---
 mp_hands = mp.solutions.hands
@@ -32,19 +50,14 @@ while True:
     if not ret:
         break
 
-    # Flip and convert
     frame = cv2.flip(frame, 1)
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    # Process with MediaPipe
     result = hands.process(rgb)
-
     prediction = "..."
 
     if result.multi_hand_landmarks:
         for hand_landmarks in result.multi_hand_landmarks:
             mp_draw.draw_landmarks(frame, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-
             h, w, _ = frame.shape
             x_min, y_min = w, h
             x_max, y_max = 0, 0
@@ -56,27 +69,29 @@ while True:
                 x_max = max(x_max, x)
                 y_max = max(y_max, y)
 
-            # Add padding
             pad = 20
             x_min = max(x_min - pad, 0)
             y_min = max(y_min - pad, 0)
             x_max = min(x_max + pad, w)
             y_max = min(y_max + pad, h)
 
-            # Crop and preprocess
             hand_img = frame[y_min:y_max, x_min:x_max]
             if hand_img.size == 0:
                 continue
 
             gray = cv2.cvtColor(hand_img, cv2.COLOR_BGR2GRAY)
             resized = cv2.resize(gray, IMG_SIZE)
-            normalized = resized.astype("float32") / 255.0
-            input_tensor = normalized.reshape(1, IMG_SIZE[0], IMG_SIZE[1], 1)
 
-            # Predict with CNN
-            probs = model.predict(input_tensor)
-            predicted_index = np.argmax(probs)
-            prediction = CLASS_LABELS[predicted_index]
+            if args.model == "knn":
+                flattened = resized.flatten().reshape(1, -1)
+                reduced = pca.transform(flattened)
+                prediction = knn.predict(reduced)[0]
+            else:
+                normalized = resized.astype("float32") / 255.0
+                input_tensor = normalized.reshape(1, IMG_SIZE[0], IMG_SIZE[1], 1)
+                probs = model.predict(input_tensor)
+                predicted_index = np.argmax(probs)
+                prediction = CLASS_LABELS[predicted_index]
 
     # --- Overlay Prediction ---
     cv2.putText(
