@@ -16,5 +16,6 @@ torch
 pre-commit
 black
 
-# If you're using Streamlit for a UI later
-# streamlit
+# Optional ML frameworks for future iterations
+tensorflow
+torch

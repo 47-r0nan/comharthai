@@ -6,31 +6,44 @@ import joblib
 from tensorflow.keras.models import load_model
 
 # --- Argument Parser ---
-parser = argparse.ArgumentParser(description="ISL Gesture Recogniser")
+parser = argparse.ArgumentParser(description="Sign Language Recogniser")
 parser.add_argument(
     "--model",
     type=str,
-    choices=["knn", "cnn"],
-    default="cnn",
-    help="Choose model: 'knn' or 'cnn'",
+    choices=["knn", "cnn", "asl48"],
+    default="asl48",
+    help="Choose model: 'knn', 'cnn', or 'asl48'",
 )
 args = parser.parse_args()
 
-# --- Constants ---
-IMG_SIZE = (64, 64)
-CLASS_LABELS = [
-    chr(i)
-    for i in range(ord("A"), ord("Z") + 1)
-    if i not in (ord("J"), ord("X"), ord("Z"))
-]
+# --- Model Configurations ---
+if args.model == "asl48":
+    IMG_SIZE = (48, 48)
+    MODEL_PATH = "signlanguagedetectionmodel48x48.h5"
+    CLASS_LABELS = [chr(i) for i in range(ord("A"), ord("Z") + 1)]  # A-Z
+elif args.model == "cnn":
+    IMG_SIZE = (64, 64)
+    MODEL_PATH = "isl_cnn_model.keras"
+    CLASS_LABELS = [
+        chr(i)
+        for i in range(ord("A"), ord("Z") + 1)
+        if i not in (ord("J"), ord("X"), ord("Z"))
+    ]
+else:  # knn
+    IMG_SIZE = (64, 64)
+    CLASS_LABELS = [
+        chr(i)
+        for i in range(ord("A"), ord("Z") + 1)
+        if i not in (ord("J"), ord("X"), ord("Z"))
+    ]
 
 # --- Load Model ---
 if args.model == "knn":
     print("Loading PCA + k-NN model...")
     pca, knn = joblib.load("isl_pca_knn_model.pkl")
 else:
-    print("Loading CNN model...")
-    model = load_model("isl_cnn_model.keras")
+    print(f"Loading {args.model.upper()} model...")
+    model = load_model(MODEL_PATH)
 
 # --- MediaPipe Setup ---
 mp_hands = mp.solutions.hands
@@ -104,7 +117,7 @@ while True:
         3,
     )
 
-    cv2.imshow("ISL Alphabet Classifier", frame)
+    cv2.imshow("Sign Language Classifier", frame)
 
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
