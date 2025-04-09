@@ -1,21 +1,15 @@
-# Core project dependencies
 opencv-python
 mediapipe
 numpy
-
 joblib
-
-# Azure Cognitive Services for speech
 azure-cognitiveservices-speech
-
-# Optional ML frameworks for future iterations
 tensorflow
 torch
-
-# Pre-commit
 pre-commit
 black
-
-# Optional ML frameworks for future iterations
 tensorflow
 torch
+fastapi
+pytest
+python-multipart
+pyttsx3
