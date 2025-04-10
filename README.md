@@ -1,4 +1,4 @@
-# 🤟 Deaf Inclusion Tool – API
+# 🤟 Comharthai API - Deaf Inclusion Tool
 
 This project is a backend API that supports translating sign language (starting with ASL and ISL) into text and speech. It is built using **FastAPI**, and designed to support multiple sign language models in a modular and extensible way.
 
@@ -12,7 +12,6 @@ This project is a backend API that supports translating sign language (starting 
 - 🧪 Fully tested with `pytest` and FastAPI’s `TestClient`
 - 🧠 Built with scalability in mind for model integration, session logging, and future enhancements
 
----
 
 ## 📦 Installation
 
@@ -33,7 +32,6 @@ This project is a backend API that supports translating sign language (starting 
    pip install -r requirements.txt
    ```
 
----
 
 ## 🚀 Running the API
 
@@ -44,7 +42,6 @@ uvicorn app.main:app --reload
 Visit the docs at:
 👉 http://localhost:8000/docs
 
----
 
 ## 🔍 Example Endpoints
 `/asl/scribe` (POST)
@@ -57,7 +54,6 @@ Same as `/scribe`, but also speaks the predicted letter using TTS.
 `/logs` (POST / GET)
 Store and retrieve signed translations. Useful for reviewing interaction history.
 
----
 
 ## 🧪 Running Tests
 
@@ -70,7 +66,6 @@ Includes:
 - Mocked TTS testing for /interpret
 - Full endpoint coverage
 
----
 
 ## 📂 Project Structure
 
@@ -86,7 +81,6 @@ app/
 tests/                # Unit tests
 ```
 
----
 
 ## ⚠️ Known Limitations
 
@@ -94,7 +88,6 @@ tests/                # Unit tests
 - Existing ASL models tested were inaccurate — in discussion with ML lecturer to retrain or replace.
 - `/logs` uses in-memory storage and will reset on restart.
 
----
 
 ## 🧠 Future Plans
 
@@ -103,7 +96,6 @@ tests/                # Unit tests
 - ✅ Real-time webcam support or video upload endpoint
 - ✅ Docker support for deployment
 
----
 
 ## 🙏 Acknowledgements
 
