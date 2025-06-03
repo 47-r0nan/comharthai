@@ -1,3 +1,37 @@
-venv/
+# Python
+__pycache__/
+*.py[cod]
+*.ipynb_checkpoints
+*.egg-info/
+dist/
+build/
 
+# Virtual environments
+venv/
+env/
+
+# Model files
 models/
+*.h5
+*.pb
+*.pt
+*.onnx
+
+# Data
+data/
+*.csv
+*.npz
+*.npy
+
+# Jupyter Notebook metadata
+.ipynb_checkpoints/
+
+# Logs
+*.log
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Colab
+*.tfevents.*
