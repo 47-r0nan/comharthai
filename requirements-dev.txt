@@ -1,0 +1,8 @@
+pytest>=6.2.5
+pytest-cov>=2.12.1
+black>=21.9b0
+flake8>=3.9.2
+httpx>=0.18.2  # For TestClient in FastAPI tests
+jupyter>=1.0.0
+notebook>=6.4.5
+ipykernel>=6.4.1

@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - ./data:/app/data
+    environment:
+      - ENVIRONMENT=development
+      # Add any other environment variables here
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    restart: unless-stopped

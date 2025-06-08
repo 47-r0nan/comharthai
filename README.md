@@ -1,103 +1,162 @@
-# 🤟 Comharthai API - Deaf Inclusion Tool
+# Comharthai 🤟👌 - Irish Sign Language Inclusion Tool
 
-This project is a backend API that supports translating sign language (starting with ASL and ISL) into text and speech. It is built using **FastAPI**, and designed to support multiple sign language models in a modular and extensible way.
+## Overview
+Comharthai is a tool designed to help deaf people in corporate and educational environments by translating, transcribing, and recording video calls with a focus on Irish Sign Language (ISL). The name "Comharthai" means "Signs" in Irish Gaelic, reflecting the project's Irish roots.
 
----
+> **Development Status**: The API infrastructure and endpoints are fully implemented. The sign language recognition models are currently in development, with the architecture in place to easily integrate them once completed.
 
-## 🏗️ Features
+## Features
+- Real-time recognition of sign language alphabets (ISL and ASL supported)
+- Translation of sign language to text
+- Video recording and storage for later reference
+- API for integration with video conferencing tools
+- Support for multiple sign languages with easy switching
 
-- 🔤 `/asl/scribe` – Sign to Text (image upload)
-- 🔊 `/asl/interpret` – Sign to Speech (image upload + TTS)
-- 🧾 `/logs` – Save and retrieve signed translations
-- 🧪 Fully tested with `pytest` and FastAPI’s `TestClient`
-- 🧠 Built with scalability in mind for model integration, session logging, and future enhancements
+## Technology Stack
+- **Backend**: Python, FastAPI
+- **Computer Vision**: MediaPipe, OpenCV
+- **Cloud Services**: Azure Cognitive Services
+- **Development**: Google Colab (for model training)
+- **Deployment**: Docker
 
+## Dataset
+The project uses the Irish Sign Language - Hand shape dataset (ISL-HS), which contains:
+- 26 hand gestures (23 static, 3 dynamic)
+- Data from 6 participants (3 males, 3 females)
+- 468 videos total
+- 58,114 frames (52,688 for static shapes, 5,426 for dynamic gestures)
 
-## 📦 Installation
+## Project Structure
+```
+comharthai/
+├── app/            # FastAPI application
+│   ├── models/     # Sign language recognition models
+│   ├── routers/    # API endpoints
+│   └── config.py   # Application configuration
+├── data/           # Dataset and processed data
+├── docs/           # Documentation and screenshots
+├── models/         # Trained models
+├── notebooks/      # Jupyter notebooks for experimentation
+├── tests/          # Unit and integration tests
+├── utils/          # Utility functions
+└── requirements.txt # Python dependencies
+```
 
-1. **Clone the repo**:
-   ```bash
-   git clone https://github.com/your-username/deaf-inclusion-tool.git
-   cd deaf-inclusion-tool
-   ```
+## Getting Started
 
-2. **Create and activate a virtual environment**:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-   ```
+### Prerequisites
+- Python 3.8+
+- pip
+- Docker (optional)
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### Installation
 
-
-## 🚀 Running the API
-
+1. Clone the repository
 ```bash
+git clone https://github.com/yourusername/comharthai.git
+cd comharthai
+```
+
+2. Create and activate a virtual environment
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+4. Set up environment variables
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+### Running the API
+
+#### Using Python
+```bash
+cd comharthai
 uvicorn app.main:app --reload
 ```
 
-Visit the docs at:
-👉 http://localhost:8000/docs
-
-
-## 🔍 Example Endpoints
-`/asl/scribe` (POST)
-Upload an image of a hand sign.
-Returns the predicted letter (currently dummy logic).
-
-`/asl/interpret` (POST)
-Same as `/scribe`, but also speaks the predicted letter using TTS.
-
-`/logs` (POST / GET)
-Store and retrieve signed translations. Useful for reviewing interaction history.
-
-
-## 🧪 Running Tests
-
+#### Using Docker
 ```bash
-PYTHONPATH=. pytest tests
+docker-compose up
 ```
 
-Includes:
-- Valid/invalid image cases
-- Mocked TTS testing for /interpret
-- Full endpoint coverage
+### API Documentation
+Once the server is running, you can access the API documentation at:
+- Swagger UI: http://localhost:8000/docs
+- ReDoc: http://localhost:8000/redoc
 
-
-## 📂 Project Structure
-
+### Running Tests
+To run the test suite:
 ```bash
-app/
-├── api/
-│   ├── text.py       # /asl/scribe
-│   ├── speech.py     # /asl/interpret
-│   └── logs.py       # /logs endpoints
-├── services/         # Prediction + TTS logic
-├── models/           # Pydantic schemas
-├── main.py           # FastAPI app entrypoint
-tests/                # Unit tests
+python -m unittest discover -s tests
 ```
 
+## API Usage
 
-## ⚠️ Known Limitations
+### Available Endpoints
 
-- Current prediction uses dummy model logic (`predict_letter()` returns "T").
-- Existing ASL models tested were inaccurate — in discussion with ML lecturer to retrain or replace.
-- `/logs` uses in-memory storage and will reset on restart.
+#### Recognition
+- `GET /recognition/languages` - List available sign language models
+- `POST /recognition/image?language=ISL` - Recognize signs from an uploaded image
+- `WebSocket /recognition/stream/{language}` - Real-time sign recognition from video stream
 
+#### Recording
+- `POST /recording/start` - Start recording a video session
+- `POST /recording/stop` - Stop recording and save the video
+- `GET /recording/{session_id}` - Get information about a recorded session
 
-## 🧠 Future Plans
+#### Transcription
+- `POST /transcription/video` - Generate text transcription from a sign language video
+- `GET /transcription/{transcription_id}` - Get a transcription by ID
 
-- ✅ Replace dummy logic with actual ASL/ISL models
-- ✅ Use persistent database for logs
-- ✅ Real-time webcam support or video upload endpoint
-- ✅ Docker support for deployment
+### Example: Recognizing Signs from an Image
+```python
+import requests
 
+url = "http://localhost:8000/recognition/image?language=ISL"
+files = {"file": open("hand_gesture.jpg", "rb")}
+response = requests.post(url, files=files)
+print(response.json())
+```
 
-## 🙏 Acknowledgements
+### Example: Real-time Recognition with WebSocket
+```javascript
+const ws = new WebSocket('ws://localhost:8000/recognition/stream/ISL');
 
-- [SignLanguageDetectionCNN](https://github.com/cirizzil/SignLanguageDetectionCNN/tree/main) for the initial ASL model base
-- FastAPI & Pyttsx3 for powerful backend tools
+ws.onopen = () => {
+  console.log('Connected to sign recognition service');
+};
+
+ws.onmessage = (event) => {
+  const result = JSON.parse(event.data);
+  console.log('Recognition result:', result);
+};
+
+// Send video frames as base64-encoded images
+function sendFrame(base64Image) {
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(base64Image);
+  }
+}
+```
+
+## Adding New Sign Language Models
+
+The system is designed to be extensible. To add a new sign language model:
+
+1. Create a new model class in `app/models/` that inherits from `SignLanguageModel`
+2. Register the model in `app/models/model_factory.py`
+3. Add the model path to your `.env` file
+
+## License
+[To be determined]
+
+## Contributing
+Contributions are welcome! Please feel free to submit a Pull Request.

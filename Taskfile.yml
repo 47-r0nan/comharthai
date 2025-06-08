@@ -1,0 +1,78 @@
+version: '3'
+
+tasks:
+  build:
+    desc: Build the Docker image
+    cmds:
+      - docker-compose build
+
+  up:
+    desc: Start the application
+    cmds:
+      - docker-compose up
+
+  down:
+    desc: Stop the application
+    cmds:
+      - docker-compose down
+
+  shell:
+    desc: Open a shell in the container
+    cmds:
+      - docker-compose exec api bash
+
+  test:
+    desc: Run tests
+    cmds:
+      - docker-compose run --rm api pytest
+
+  test-local:
+    desc: Run tests locally
+    cmds:
+      - ./venv/bin/pytest
+
+  test-unit:
+    desc: Run only unit tests
+    cmds:
+      - ./venv/bin/pytest tests/unit
+
+  test-integration:
+    desc: Run only integration tests
+    cmds:
+      - ./venv/bin/pytest tests/integration
+
+  test-coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - ./venv/bin/pytest --cov=app tests/
+
+  format:
+    desc: Format code
+    cmds:
+      - docker-compose run --rm api black .
+
+  setup-dev:
+    desc: Set up development environment locally
+    cmds:
+      - python -m venv venv
+      - ./venv/bin/pip install -r requirements.txt
+      - ./venv/bin/pip install -r requirements-dev.txt
+      - ./venv/bin/pip install pre-commit
+      - pre-commit install
+
+  pre-commit:
+    desc: Run pre-commit hooks on all files
+    aliases: [pc]
+    cmds:
+      - pre-commit run --all-files
+
+  notebook:
+    desc: Start Jupyter notebook
+    cmds:
+      - docker-compose run --rm -p 8888:8888 api jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root
+
+  run-api:
+    desc: Run the FastAPI application locally
+    aliases: [api]
+    cmds:
+      - ./venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
