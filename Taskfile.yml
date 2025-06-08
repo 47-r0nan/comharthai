@@ -26,10 +26,25 @@ tasks:
     cmds:
       - docker-compose run --rm api pytest
 
-  lint:
-    desc: Run linting
+  test-local:
+    desc: Run tests locally
     cmds:
-      - docker-compose run --rm api flake8
+      - ./venv/bin/pytest
+
+  test-unit:
+    desc: Run only unit tests
+    cmds:
+      - ./venv/bin/pytest tests/unit
+
+  test-integration:
+    desc: Run only integration tests
+    cmds:
+      - ./venv/bin/pytest tests/integration
+
+  test-coverage:
+    desc: Run tests with coverage report
+    cmds:
+      - ./venv/bin/pytest --cov=app tests/
 
   format:
     desc: Format code
@@ -55,3 +70,9 @@ tasks:
     desc: Start Jupyter notebook
     cmds:
       - docker-compose run --rm -p 8888:8888 api jupyter notebook --ip=0.0.0.0 --port=8888 --no-browser --allow-root
+
+  run-api:
+    desc: Run the FastAPI application locally
+    aliases: [api]
+    cmds:
+      - ./venv/bin/uvicorn app.main:app --reload --host 0.0.0.0 --port 8000

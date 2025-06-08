@@ -35,3 +35,9 @@ Thumbs.db
 
 # Colab
 *.tfevents.*
+
+# Environment variables
+.env
+
+# Recordings
+recordings/

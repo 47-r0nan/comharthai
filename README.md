@@ -3,6 +3,8 @@
 ## Overview
 Comharthai is a tool designed to help deaf people in corporate and educational environments by translating, transcribing, and recording video calls with a focus on Irish Sign Language (ISL). The name "Comharthai" means "Signs" in Irish Gaelic, reflecting the project's Irish roots.
 
+> **Development Status**: The API infrastructure and endpoints are fully implemented. The sign language recognition models are currently in development, with the architecture in place to easily integrate them once completed.
+
 ## Features
 - Real-time recognition of sign language alphabets (ISL and ASL supported)
 - Translation of sign language to text
@@ -32,8 +34,10 @@ comharthai/
 │   ├── routers/    # API endpoints
 │   └── config.py   # Application configuration
 ├── data/           # Dataset and processed data
+├── docs/           # Documentation and screenshots
 ├── models/         # Trained models
 ├── notebooks/      # Jupyter notebooks for experimentation
+├── tests/          # Unit and integration tests
 ├── utils/          # Utility functions
 └── requirements.txt # Python dependencies
 ```
@@ -87,6 +91,12 @@ docker-compose up
 Once the server is running, you can access the API documentation at:
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
+
+### Running Tests
+To run the test suite:
+```bash
+python -m unittest discover -s tests
+```
 
 ## API Usage
 
