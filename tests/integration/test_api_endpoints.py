@@ -21,7 +21,7 @@ def test_root_endpoint(client):
     response = client.get("/")
     assert response.status_code == 200
     assert response.json() == {
-        "message": "Welcome to Comharthai API - Irish Sign Language Recognition"
+        "message": "Welcome to Comharthai API - American Sign Language Recognition"
     }
 
 
@@ -36,10 +36,11 @@ def test_recognition_languages(client):
     """Test the recognition languages endpoint."""
     response = client.get("/recognition/languages")
     assert response.status_code == 200
-    languages = response.json()
-    assert isinstance(languages, list)
-    assert "ISL" in languages
-    assert "ASL" in languages
+    data = response.json()
+    assert "languages" in data
+    assert "default" in data
+    assert "ASL" in data["languages"]
+    assert data["default"] == "ASL"
 
 
 # Note: The following tests are marked as skipped as they require actual model implementations

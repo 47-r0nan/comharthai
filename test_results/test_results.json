@@ -1,0 +1,23 @@
+{
+  "asl_video_vs_asl_model": [
+    "N/A",
+    "N/A"
+  ],
+  "asl_video_vs_isl_model": [
+    "W",
+    "W",
+    "W",
+    "N/A",
+    "W"
+  ],
+  "isl_video_vs_asl_model": [
+    "N/A"
+  ],
+  "isl_video_vs_isl_model": [
+    "M",
+    "W",
+    "W",
+    "W",
+    "W"
+  ]
+}

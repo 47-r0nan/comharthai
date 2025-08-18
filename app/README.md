@@ -1,124 +1,228 @@
-# Comharthai API
+# Comharthai API Application
 
-This directory contains the FastAPI application for the Comharthai sign language recognition system.
+## Overview
+This directory contains the FastAPI application for the Comharthai ASL recognition system. The application provides RESTful endpoints and WebSocket connections for real-time sign language recognition.
 
-## Directory Structure
+## Architecture
 
+### Core Components
+
+#### Models (`models/`)
+- **`base_model.py`**: Abstract base class defining the interface for all sign language models
+- **`asl_model.py`**: American Sign Language recognition implementation using MediaPipe + PyTorch
+- **`mobilenet_asl.py`**: MobileNetV2 architecture with channel attention layers
+- **`model_factory.py`**: Factory pattern for creating and managing different language models
+- **`isl_model.py`**: Irish Sign Language model (placeholder implementation)
+
+#### Routers (`routers/`)
+- **`recognition.py`**: Image upload and real-time WebSocket recognition endpoints
+- **`recording.py`**: Video recording management (save, list, download, delete)
+- **`transcription.py`**: Video-to-text transcription services
+
+#### Configuration (`config.py`)
+- Environment-based settings using Pydantic
+- Model paths and API configuration
+- Azure services configuration (optional)
+
+## API Endpoints
+
+### Recognition Endpoints
 ```
-app/
-├── models/             # Sign language recognition models
-│   ├── __init__.py
-│   ├── base_model.py   # Abstract base class for all models
-│   ├── asl_model.py    # American Sign Language model
-│   ├── isl_model.py    # Irish Sign Language model
-│   └── model_factory.py # Factory for creating models
-├── routers/            # API endpoints
-│   ├── __init__.py
-│   ├── recognition.py  # Sign language recognition endpoints
-│   ├── recording.py    # Video recording endpoints
-│   └── transcription.py # Transcription endpoints
-├── __init__.py
-├── config.py           # Application configuration
-└── main.py             # FastAPI application entry point
+GET  /recognition/languages           # List available models
+POST /recognition/image?language=ASL  # Upload image for recognition
+WS   /recognition/stream/{language}   # Real-time recognition
 ```
 
-## How It Works
+### Recording Endpoints
+```
+POST   /recording/save                # Save uploaded video
+GET    /recording/list                # List all recordings
+GET    /recording/download/{id}       # Download specific recording
+DELETE /recording/{id}                # Delete recording
+```
 
-### Model System
+### Transcription Endpoints
+```
+POST   /transcription/create          # Create transcription from video
+GET    /transcription/list            # List all transcriptions
+GET    /transcription/{id}            # Get transcription content
+DELETE /transcription/{id}            # Delete transcription
+```
 
-The application uses a flexible model system that supports multiple sign language models:
+## Model Implementation
 
-1. **Base Model**: `SignLanguageModel` defines the interface for all sign language models
-2. **Language-Specific Models**:
-   - `ASLModel`: American Sign Language recognition
-   - `ISLModel`: Irish Sign Language recognition
-3. **Model Factory**: `ModelFactory` creates and manages models based on the requested language
+### ASL Model Pipeline
+1. **Hand Detection**: MediaPipe detects hand landmarks (21 points per hand)
+2. **Preprocessing**: Crop hand region, resize to 224x224, normalize
+3. **Classification**: MobileNetV2 with attention layers predicts letter (A-Z)
+4. **Postprocessing**: Apply confidence thresholding and temporal smoothing
 
-### API Endpoints
+### Key Features
+- **Prediction Smoothing**: Averages predictions over 5 frames to reduce jitter
+- **Confidence Thresholding**: Only outputs predictions above 70% confidence
+- **Real-time Processing**: Optimized for ~30 FPS performance
+- **Single Hand Focus**: Optimized for single-hand detection for better accuracy
 
-#### Recognition
+## Usage Examples
 
-- `GET /recognition/languages`: Lists all available sign language models
-- `POST /recognition/image?language=ISL`: Recognizes signs from an uploaded image
-- `WebSocket /recognition/stream/{language}`: Provides real-time sign recognition from video stream
-
-#### Recording
-
-- `POST /recording/start`: Starts recording a video session
-- `POST /recording/stop`: Stops recording and saves the video
-- `GET /recording/{session_id}`: Gets information about a recorded session
-
-#### Transcription
-
-- `POST /transcription/video`: Generates text transcription from a sign language video
-- `GET /transcription/{transcription_id}`: Gets a transcription by ID
-
-## Adding a New Sign Language Model
-
-To add support for a new sign language:
-
-1. Create a new model class that inherits from `SignLanguageModel`:
-
+### Loading a Model
 ```python
-from app.models.base_model import SignLanguageModel
+from app.models.model_factory import ModelFactory
 
-class BSLModel(SignLanguageModel):
-    """British Sign Language model."""
+# Create ASL model
+model = ModelFactory.get_model("ASL", "models/weights/asl_crop_v4_1_mobilenet_weights.pth")
 
-    def __init__(self, model_path: str = None):
-        super().__init__(model_path)
-        self.language = "BSL"
-        # Initialize model-specific components
-
-    def load_model(self) -> None:
-        # Load model implementation
-        pass
-
-    def preprocess(self, frame):
-        # Preprocess implementation
-        pass
-
-    def predict(self, input_data):
-        # Prediction implementation
-        pass
-
-    def postprocess(self, prediction):
-        # Postprocess implementation
-        pass
+# Recognize from image
+import cv2
+image = cv2.imread("hand_gesture.jpg")
+result = model.recognize(image)
+print(result)
 ```
 
-2. Register the model in `model_factory.py`:
-
+### API Client Example
 ```python
-from app.models.bsl_model import BSLModel
+import requests
 
-# Add to the _models dictionary in ModelFactory
-ModelFactory._models["BSL"] = BSLModel
+# Image recognition
+url = "http://localhost:8000/recognition/image?language=ASL"
+files = {"file": open("gesture.jpg", "rb")}
+response = requests.post(url, files=files)
+result = response.json()
+
+if result["detected"]:
+    print(f"Letter: {result['top_prediction']['label']}")
+    print(f"Confidence: {result['top_prediction']['confidence']:.2f}")
 ```
 
-3. Add the model path to your `.env` file:
+### WebSocket Client Example
+```python
+import asyncio
+import websockets
+import json
+import base64
+import cv2
 
-```
-BSL_MODEL_PATH=/path/to/bsl/model
+async def recognize_realtime():
+    uri = "ws://localhost:8000/recognition/stream/ASL"
+    async with websockets.connect(uri) as websocket:
+        cap = cv2.VideoCapture(0)
+
+        while True:
+            ret, frame = cap.read()
+            if ret:
+                # Encode frame as base64
+                _, buffer = cv2.imencode('.jpg', frame)
+                frame_b64 = base64.b64encode(buffer).decode('utf-8')
+
+                # Send to server
+                await websocket.send(frame_b64)
+
+                # Receive result
+                result = await websocket.recv()
+                data = json.loads(result)
+
+                if data.get("detected"):
+                    print(f"Recognized: {data['top_prediction']['label']}")
+
+asyncio.run(recognize_realtime())
 ```
 
 ## Configuration
 
-The application uses environment variables for configuration. See `.env.example` for available options.
-
-Key configuration options:
-
-- `DEFAULT_LANGUAGE`: Default sign language to use (e.g., "ISL")
-- `MODEL_PATHS`: Paths to trained models for each language
-- `AZURE_*`: Azure Cognitive Services credentials (if using Azure)
-- `RECORDING_DIR`: Directory for storing recorded videos
-
-## Development
-
-To run the application in development mode:
-
+### Environment Variables
 ```bash
-uvicorn app.main:app --reload
+# Application settings
+DEBUG=False
+DEFAULT_LANGUAGE=ASL
+
+# Model paths
+ASL_MODEL_PATH=models/weights/asl_crop_v4_1_mobilenet_weights.pth
+ISL_MODEL_PATH=
+
+# Recording settings
+RECORDING_DIR=data/recordings
+MAX_RECORDING_LENGTH_SECONDS=300
+
+# Azure services (optional)
+AZURE_SPEECH_KEY=
+AZURE_SPEECH_REGION=
+AZURE_VISION_KEY=
+AZURE_VISION_ENDPOINT=
 ```
 
-This will start the API server with auto-reload enabled.
+### Model Requirements
+- PyTorch model weights must be compatible with the CustomMobileNetV2 architecture
+- Models should output 26 classes (A-Z letters)
+- Input images should be 224x224 RGB
+
+## Error Handling
+
+### Common Error Responses
+```json
+{
+  "detected": false,
+  "message": "No hand detected",
+  "predictions": {}
+}
+```
+
+```json
+{
+  "detected": false,
+  "message": "Error in prediction",
+  "predictions": {}
+}
+```
+
+### HTTP Error Codes
+- `400`: Invalid image file or malformed request
+- `404`: Recording/transcription not found
+- `500`: Internal server error (model loading, prediction errors)
+
+## Performance Considerations
+
+### Optimization Tips
+- Use GPU when available (CUDA support)
+- Batch process multiple images when possible
+- Implement caching for frequently accessed models
+- Use appropriate image compression for WebSocket streams
+
+### Resource Usage
+- **Memory**: ~500MB for loaded ASL model
+- **CPU**: ~10-20% for real-time recognition
+- **Storage**: ~12MB per model file
+
+## Testing
+
+### Unit Tests
+```bash
+python -m pytest tests/unit/
+```
+
+### Integration Tests
+```bash
+python -m pytest tests/integration/
+```
+
+### Manual Testing
+```bash
+# Test model loading
+python -c "from app.models.asl_model import ASLModel; m = ASLModel(); m.load_model(); print('✅ Model loaded')"
+
+# Test API endpoints
+curl -X GET http://localhost:8000/recognition/languages
+```
+
+## Extending the System
+
+### Adding New Languages
+1. Create new model class inheriting from `SignLanguageModel`
+2. Implement required methods: `load_model()`, `preprocess()`, `predict()`, `postprocess()`
+3. Register in `ModelFactory`
+4. Add model path to configuration
+
+### Custom Model Integration
+1. Ensure model outputs 26 classes (A-Z)
+2. Implement preprocessing to match expected input format
+3. Add confidence scoring and smoothing logic
+4. Test with various hand positions and lighting conditions

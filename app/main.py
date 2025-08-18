@@ -19,8 +19,8 @@ logger = logging.getLogger(__name__)
 # Create FastAPI app
 app = FastAPI(
     title="Comharthai API",
-    description="Irish Sign Language Recognition and Transcription API",
-    version="0.1.0",
+    description="American Sign Language Recognition and Transcription API",
+    version="1.0.0",
 )
 
 # Add CORS middleware
@@ -41,7 +41,7 @@ app.include_router(transcription.router)
 @app.get("/")
 async def root():
     """Root endpoint to check if API is running."""
-    return {"message": "Welcome to Comharthai API - Irish Sign Language Recognition"}
+    return {"message": "Welcome to Comharthai API - American Sign Language Recognition"}
 
 
 @app.get("/health")

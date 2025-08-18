@@ -1,5 +1,6 @@
 services:
   api:
+    platform: linux/arm64
     build: .
     ports:
       - "8000:8000"
@@ -9,5 +10,5 @@ services:
     environment:
       - ENVIRONMENT=development
       # Add any other environment variables here
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8000 || tail -f /dev/null"
     restart: unless-stopped
