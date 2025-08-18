@@ -87,7 +87,7 @@ async def recognize_from_image(file: UploadFile = File(...), model=Depends(get_m
 
         # Add image with landmarks if hand was detected
         if result.get("detected", False):
-            _, landmarks = model.preprocess(image)
+            _, landmarks, _ = model.preprocess(image)
             if landmarks:
                 image_with_landmarks = model.draw_landmarks(image, landmarks)
                 _, buffer = cv2.imencode(".jpg", image_with_landmarks)
@@ -140,7 +140,7 @@ async def websocket_endpoint(websocket: WebSocket, language: str):
 
                 # Add frame with landmarks if hand was detected
                 if result.get("detected", False):
-                    _, landmarks = model.preprocess(frame)
+                    _, landmarks, _ = model.preprocess(frame)
                     if landmarks:
                         frame_with_landmarks = model.draw_landmarks(frame, landmarks)
                         _, buffer = cv2.imencode(".jpg", frame_with_landmarks)

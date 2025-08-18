@@ -1,0 +1,37 @@
+{
+  "video_path": "/Users/rharris/college/PRO/deafInclusionTool/comharthai/tests/Learn ASL Alphabet Video.mp4",
+  "frames_tested": 10,
+  "successful_predictions": 0,
+  "error_count": 9,
+  "unique_letters": [],
+  "all_predictions": [
+    "ERROR",
+    "ERROR",
+    "N/A",
+    "ERROR",
+    "ERROR",
+    "ERROR",
+    "ERROR",
+    "ERROR",
+    "ERROR",
+    "ERROR"
+  ],
+  "errors": [
+    "HTTP 500",
+    "HTTP 500",
+    "HTTP 500",
+    "HTTP 500",
+    "HTTP 500",
+    "HTTP 500",
+    "HTTP 500",
+    "HTTP 500",
+    "HTTP 500"
+  ],
+  "detailed_results": [
+    {
+      "detected": false,
+      "message": "No hand detected",
+      "predictions": {}
+    }
+  ]
+}

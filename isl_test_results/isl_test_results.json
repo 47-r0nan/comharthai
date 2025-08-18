@@ -1,0 +1,165 @@
+{
+  "video_path": "/Users/rharris/college/PRO/deafInclusionTool/comharthai/tests/ABC in Irish Sign Language.mp4",
+  "frames_tested": 8,
+  "successful_predictions": 8,
+  "unique_letters": [
+    "M",
+    "W"
+  ],
+  "all_predictions": [
+    "M",
+    "W",
+    "W",
+    "W",
+    "W",
+    "W",
+    "W",
+    "W"
+  ],
+  "detailed_results": [
+    {
+      "detected": true,
+      "top_prediction": {
+        "label": "M",
+        "confidence": 0.722052812576294,
+        "index": 11
+      },
+      "all_predictions": [
+        {
+          "label": "M",
+          "index": 11,
+          "prob": 0.722052812576294
+        }
+      ],
+      "model": "ISL MobileNetV2 Keras",
+      "language": "ISL",
+      "confidence_threshold": 0.7
+    },
+    {
+      "detected": true,
+      "top_prediction": {
+        "label": "W",
+        "confidence": 0.999077320098877,
+        "index": 21
+      },
+      "all_predictions": [
+        {
+          "label": "W",
+          "index": 21,
+          "prob": 0.999077320098877
+        }
+      ],
+      "model": "ISL MobileNetV2 Keras",
+      "language": "ISL",
+      "confidence_threshold": 0.7
+    },
+    {
+      "detected": true,
+      "top_prediction": {
+        "label": "W",
+        "confidence": 0.9977161884307861,
+        "index": 21
+      },
+      "all_predictions": [
+        {
+          "label": "W",
+          "index": 21,
+          "prob": 0.9977161884307861
+        }
+      ],
+      "model": "ISL MobileNetV2 Keras",
+      "language": "ISL",
+      "confidence_threshold": 0.7
+    },
+    {
+      "detected": true,
+      "top_prediction": {
+        "label": "W",
+        "confidence": 0.9988586902618408,
+        "index": 21
+      },
+      "all_predictions": [
+        {
+          "label": "W",
+          "index": 21,
+          "prob": 0.9988586902618408
+        }
+      ],
+      "model": "ISL MobileNetV2 Keras",
+      "language": "ISL",
+      "confidence_threshold": 0.7
+    },
+    {
+      "detected": true,
+      "top_prediction": {
+        "label": "W",
+        "confidence": 0.9995490908622742,
+        "index": 21
+      },
+      "all_predictions": [
+        {
+          "label": "W",
+          "index": 21,
+          "prob": 0.9995490908622742
+        }
+      ],
+      "model": "ISL MobileNetV2 Keras",
+      "language": "ISL",
+      "confidence_threshold": 0.7
+    },
+    {
+      "detected": true,
+      "top_prediction": {
+        "label": "W",
+        "confidence": 0.9987626075744629,
+        "index": 21
+      },
+      "all_predictions": [
+        {
+          "label": "W",
+          "index": 21,
+          "prob": 0.9987626075744629
+        }
+      ],
+      "model": "ISL MobileNetV2 Keras",
+      "language": "ISL",
+      "confidence_threshold": 0.7
+    },
+    {
+      "detected": true,
+      "top_prediction": {
+        "label": "W",
+        "confidence": 0.9985417127609253,
+        "index": 21
+      },
+      "all_predictions": [
+        {
+          "label": "W",
+          "index": 21,
+          "prob": 0.9985417127609253
+        }
+      ],
+      "model": "ISL MobileNetV2 Keras",
+      "language": "ISL",
+      "confidence_threshold": 0.7
+    },
+    {
+      "detected": true,
+      "top_prediction": {
+        "label": "W",
+        "confidence": 0.9973025321960449,
+        "index": 21
+      },
+      "all_predictions": [
+        {
+          "label": "W",
+          "index": 21,
+          "prob": 0.9973025321960449
+        }
+      ],
+      "model": "ISL MobileNetV2 Keras",
+      "language": "ISL",
+      "confidence_threshold": 0.7
+    }
+  ]
+}

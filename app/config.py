@@ -20,10 +20,12 @@ class Settings(BaseSettings):
     DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
 
     # Sign language model settings
-    DEFAULT_LANGUAGE: str = os.getenv("DEFAULT_LANGUAGE", "ISL")
+    DEFAULT_LANGUAGE: str = os.getenv("DEFAULT_LANGUAGE", "ASL")
     MODEL_PATHS: Dict[str, str] = {
-        "ASL": os.getenv("ASL_MODEL_PATH", ""),
-        "ISL": os.getenv("ISL_MODEL_PATH", ""),
+        "ASL": os.getenv(
+            "ASL_MODEL_PATH", "models/weights/asl_crop_v4_1_mobilenet_weights.pth"
+        ),
+        "ISL": os.getenv("ISL_MODEL_PATH", "outputs/models/isl_mnv2_finetuned.keras"),
     }
 
     # Azure settings (if using Azure services)
@@ -33,7 +35,7 @@ class Settings(BaseSettings):
     AZURE_VISION_ENDPOINT: Optional[str] = os.getenv("AZURE_VISION_ENDPOINT")
 
     # Video recording settings
-    RECORDING_DIR: str = os.getenv("RECORDING_DIR", "recordings")
+    RECORDING_DIR: str = os.getenv("RECORDING_DIR", "data/recordings")
     MAX_RECORDING_LENGTH_SECONDS: int = int(
         os.getenv("MAX_RECORDING_LENGTH_SECONDS", "300")
     )
